@@ -46,65 +46,7 @@ cd /tmp/prometheus
 docker run -d --name prometheus -p 9090:9090 -v /tmp/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
 ```
 
-Summary : On EC2 Instances
-```
-# Update the dependencies using yum update
-# Download the source using curl, untar it and rename the extracted folder to prometheus-files.
-# Create a Prometheus user, required directories, and make prometheus user as the owner of those directories.
-# Copy prometheus and promtool binary from prometheus-files folder to /usr/local/bin and change the ownership to prometheus user.
-# Move the consoles, console_libraries directories and prometheus config file from prometheus-files to /etc/prometheus folder and change the ownership to prometheus user.
-# Setup Prometheus Service File
-# Reload the systemd service to register the prometheus service and start the prometheus service and check if the service is running successfully
 
-
-sudo yum update -y
-sudo wget -c https://github.com/prometheus/prometheus/releases/download/v2.21.0/prometheus-2.21.0.linux-amd64.tar.gz  -O - |tar xz
-sudo mv prometheus-2.21.0.linux-amd64 prometheus-files
-sudo useradd --no-create-home --shell /bin/false prometheus
-sudo mkdir /etc/prometheus
-sudo mkdir /var/lib/prometheus
-sudo chown prometheus:prometheus /etc/prometheus
-sudo chown prometheus:prometheus /var/lib/prometheus
-sudo cd prometheus-files/
-sudo cp prometheus-files/prometheus /usr/local/bin/
-sudo cp prometheus-files/promtool /usr/local/bin/
-sudo chown prometheus:prometheus /usr/local/bin/prometheus
-sudo chown prometheus:prometheus /usr/local/bin/promtool
-sudo cp -r prometheus-files/consoles /etc/prometheus
-sudo cp -r prometheus-files/console_libraries /etc/prometheus
-sudo cp prometheus-files/prometheus.yml /etc/prometheus
-sudo chown -R prometheus:prometheus /etc/prometheus/consoles
-sudo chown -R prometheus:prometheus /etc/prometheus/console_libraries
-sudo chown prometheus:prometheus /etc/prometheus/prometheus.yml
-sudo vi /etc/systemd/system/prometheus.service
-```
-Copy the following content to the file.
-```
-[Unit]
-Description=Prometheus
-Wants=network-online.target
-After=network-online.target
-
-[Service]
-User=prometheus
-Group=prometheus
-Type=simple
-ExecStart=/usr/local/bin/prometheus \
-    --config.file /etc/prometheus/prometheus.yml \
-    --storage.tsdb.path /var/lib/prometheus/ \
-    --web.console.templates=/etc/prometheus/consoles \
-    --web.console.libraries=/etc/prometheus/console_libraries
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Reload the systemd service to register the prometheus service and start the prometheus service and check if the service is running successfully
-```
-sudo systemctl daemon-reload
-sudo systemctl start prometheus
-sudo systemctl status prometheus
-```
 
 **Metric Types**
 
@@ -525,3 +467,106 @@ helm repo list
 helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm repo list
 helm install stable-prom stable/prometheus-operator
+```
+
+# On EC2
+
+Install Prometheus
+```
+# Update the dependencies using yum update
+# Download the source using curl, untar it and rename the extracted folder to prometheus-files.
+# Create a Prometheus user, required directories, and make prometheus user as the owner of those directories.
+# Copy prometheus and promtool binary from prometheus-files folder to /usr/local/bin and change the ownership to prometheus user.
+# Move the consoles, console_libraries directories and prometheus config file from prometheus-files to /etc/prometheus folder and change the ownership to prometheus user.
+# Setup Prometheus Service File
+# Reload the systemd service to register the prometheus service and start the prometheus service and check if the service is running successfully
+
+
+sudo yum update -y
+sudo wget -c https://github.com/prometheus/prometheus/releases/download/v2.21.0/prometheus-2.21.0.linux-amd64.tar.gz  -O - |tar xz
+sudo mv prometheus-2.21.0.linux-amd64 prometheus-files
+sudo useradd --no-create-home --shell /bin/false prometheus
+sudo mkdir /etc/prometheus
+sudo mkdir /var/lib/prometheus
+sudo chown prometheus:prometheus /etc/prometheus
+sudo chown prometheus:prometheus /var/lib/prometheus
+sudo cd prometheus-files/
+sudo cp prometheus-files/prometheus /usr/local/bin/
+sudo cp prometheus-files/promtool /usr/local/bin/
+sudo chown prometheus:prometheus /usr/local/bin/prometheus
+sudo chown prometheus:prometheus /usr/local/bin/promtool
+sudo cp -r prometheus-files/consoles /etc/prometheus
+sudo cp -r prometheus-files/console_libraries /etc/prometheus
+sudo cp prometheus-files/prometheus.yml /etc/prometheus
+sudo chown -R prometheus:prometheus /etc/prometheus/consoles
+sudo chown -R prometheus:prometheus /etc/prometheus/console_libraries
+sudo chown prometheus:prometheus /etc/prometheus/prometheus.yml
+sudo vi /etc/systemd/system/prometheus.service
+```
+Copy the following content to the file.
+```
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+    --config.file /etc/prometheus/prometheus.yml \
+    --storage.tsdb.path /var/lib/prometheus/ \
+    --web.console.templates=/etc/prometheus/consoles \
+    --web.console.libraries=/etc/prometheus/console_libraries
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Reload the systemd service to register the prometheus service and start the prometheus service and check if the service is running successfully
+```
+sudo systemctl daemon-reload
+sudo systemctl start prometheus
+sudo systemctl status prometheus
+```
+
+Install Node Exporter
+```
+# Update the dependencies using yum update
+# Download the source using curl, untar it and move the node_exporter binary to /usr/local/bin
+# Create a node_exporter user to run the node exporter service.
+# Copy prometheus and promtool binary from prometheus-files folder to /usr/local/bin and change the ownership to prometheus user.
+# Create a node_exporter service.
+
+
+sudo yum update -y
+sudo wget -c https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz  -O - |tar xz
+sudo mv node_exporter-1.0.1.linux-amd64/node_exporter /usr/local/bin
+sudo useradd -rs /bin/false node_exporter
+sudo vi /etc/systemd/system/node_exporter.service
+```
+
+Copy the following content to the file.
+```
+[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Reload the systemd service to register the node_exporter service and start the node_exporter service and check if the service is running successfully
+```
+sudo systemctl daemon-reload
+sudo systemctl start node_exporter
+sudo systemctl status node_exporter
+```
+
