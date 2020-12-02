@@ -5,16 +5,16 @@ docker run --name artifactory -d -p 8081:8081 -p 8082:8082 docker.bintray.io/jfr
 vim /etc/docker/daemon.json
 ```
 {
-  "insecure-registries" : ["18.139.3.224:8082"]
+  "insecure-registries" : ["18.139.3.224:8081"]
 }
-docker login http://18.139.3.224:8082/
+docker login http://18.139.3.224:8081/
 ```
 
 ```
 docker pull hello-world
-docker tag hello-world 18.139.3.224:8082/pocketfm/hello-world
-docker push 18.139.3.224:8082/pocketfm/hello-world
-docker pull 18.139.3.224:8082/pocketfm/hello-world
+docker tag hello-world 18.139.3.224:8081/pocketfm/hello-world
+docker push 18.139.3.224:8081/pocketfm/hello-world
+docker pull 18.139.3.224:8081/pocketfm/hello-world
 ```
 
 

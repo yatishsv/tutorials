@@ -1,0 +1,31 @@
+```
+curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+kubectl version
+curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+ll
+rm -rf kops 
+curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+ll
+chmod +x kops
+ll
+sudo mv kops /usr/local/bin/kops
+kops
+aws configure
+export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)
+export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
+ export KOPS_STATE_STORE=s3://pocketfm.kops
+kops create cluster --cloud=aws --zones=ap-southeast-1a --name=pocketfm.kops --dns-zone=pocketfm.kops --dns private
+ssh-keygen -f ~/.ssh/id_rsa
+kops create secret --name pocketfm.kops sshpublickey admin -i ~/.ssh/id_rsa.pub
+kops edit cluster pocketfm.kops
+kops edit ig nodes
+kops edit ig nodes --name pocketfm.kops
+kops get ig nodes --name pocketfm.kops
+kops get ig --name pocketfm.kops
+kops edit ig nodes --name pocketfm.kops
+kops get ig --name pocketfm.kops
+kops update cluster pocketfm.kops --yes
+kops validate cluster
+```

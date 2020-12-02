@@ -5,8 +5,8 @@ yum update httpd -y
 yum install git httpd vim -y
 ```
 ```
-  948  yum install -y https://s3.ap-southeast-1.amazonaws.com/amazon-ssm-ap-southeast-1/latest/linux_amd64/amazon-ssm-agent.rpm
-  949  systemctl enable amazon-ssm-agent
+yum install -y https://s3.ap-southeast-1.amazonaws.com/amazon-ssm-ap-southeast-1/latest/linux_amd64/amazon-ssm-agent.rpm
+systemctl enable amazon-ssm-agent
   950  systemctl start amazon-ssm-agent
 ```
 scp
